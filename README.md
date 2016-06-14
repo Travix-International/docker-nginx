@@ -1,11 +1,3 @@
-# travix/nginx
-
-[nginx](http://nginx.org/) reverse proxy
-
-[![Stars](https://img.shields.io/docker/stars/travix/nginx.svg)](https://hub.docker.com/r/travix/nginx/)
-[![Pulls](https://img.shields.io/docker/pulls/travix/nginx.svg)](https://hub.docker.com/r/travix/nginx/)
-[![License](https://img.shields.io/github/license/Travix-International/docker-nginx.svg)](https://github.com/Travix-International/docker-nginx/blob/master/LICENSE)
-
 # Usage
 
 To run this docker container use the following command
