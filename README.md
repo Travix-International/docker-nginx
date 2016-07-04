@@ -14,6 +14,7 @@ In order to configure the nginx load balancer for providing ssl on port 443 for 
 | -------------------- | ----------------------------------------------------------| --------------------------- |
 | BACKEND_SERVER       | The ip address of the gocd server                         | localhost                   |
 | BACKEND_SERVER_PORT  | The http port the gocd server listens to                  | 80                          |
+| WHITELIST_CIDRS      | Space separated list of IPs to be whitelisted             |                             |
 
 To run nginx to redirect to ssl and provide access through normal https port (443) to gocd server run the following command
 
@@ -21,6 +22,18 @@ To run nginx to redirect to ssl and provide access through normal https port (44
 docker run -d \
     -e "BACKEND_SERVER=origin.yourdomain.com" \
     -e "BACKEND_SERVER_PORT=8153" \
+    travix/nginx:latest
+```
+
+# Restricting access
+
+To allow access from a certain set of addresses, run the container with the following environment variable
+
+```sh
+docker run -d \
+    -e "BACKEND_SERVER=origin.yourdomain.com" \
+    -e "BACKEND_SERVER_PORT=8153" \
+    -e "WHITELIST_CIDRS=1.2.3.4/32 9.8.7.6" \
     travix/nginx:latest
 ```
 
