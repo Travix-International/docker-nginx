@@ -22,7 +22,7 @@ then
   rules=$(echo "${rules}\n        deny all;")
 fi
 
-sed -i -e "s_allow    all;_${rules}_" $nginx_config_file
+sed -i -e "s_allow     all;_${rules}_" $nginx_config_file
 sed -i -e "s/localhost:80/${BACKEND_SERVER}:${BACKEND_SERVER_PORT}/" $nginx_config_file
 
 exec "$@"
