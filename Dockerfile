@@ -148,6 +148,8 @@ COPY prometheus.lua /lua-modules/prometheus.lua
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     HEALT_CHECK_PATH=/ \
-    ALLOW_CIDRS="allow 0.0.0.0/0;"
+    ALLOW_CIDRS="allow 0.0.0.0/0;" \
+    SERVICE_NAME="myservice" \
+    NAMESPACE="mynamespace"
 
-CMD cat /etc/nginx/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS > /etc/nginx/nginx.conf && nginx
+CMD cat /etc/nginx/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE > /etc/nginx/nginx.conf && nginx
