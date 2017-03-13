@@ -139,9 +139,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
 
-EXPOSE 80 81 82 443
+EXPOSE 80 81 82 443 9101
 
 COPY nginx.conf /etc/nginx/nginx.conf.tmpl
+COPY prometheus.lua /lua-modules/prometheus.lua
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
