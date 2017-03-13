@@ -148,6 +148,6 @@ COPY prometheus.lua /lua-modules/prometheus.lua
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     HEALT_CHECK_PATH=/ \
-    WHITELIST_CIDRS="allow 0.0.0.0/0;"
+    NGINX_ALLOW_CIDRS="allow 0.0.0.0/0;"
 
-CMD cat /etc/nginx/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$WHITELIST_CIDRS > /etc/nginx/nginx.conf && nginx
+CMD cat /etc/nginx/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$NGINX_ALLOW_CIDRS > /etc/nginx/nginx.conf && nginx
