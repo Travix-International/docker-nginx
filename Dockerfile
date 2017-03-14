@@ -142,6 +142,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 EXPOSE 80 81 82 443 9101
 
 COPY nginx.conf /etc/nginx/nginx.conf.tmpl
+COPY lua-init.conf /etc/nginx/includes/lua-init.conf
 COPY prometheus.lua /lua-modules/prometheus.lua
 
 # runtime environment variables
