@@ -137,13 +137,14 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   \
   # forward request and error logs to docker log collector
   && ln -sf /dev/stdout /var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log
+  && ln -sf /dev/stderr /var/log/nginx/error.log \
+  && mkdir -p /etc/nginx /lua-modules
 
 EXPOSE 80 81 82 443 9101
 
-COPY nginx.conf /etc/nginx/nginx.conf.tmpl
+COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY lua-init.conf /etc/nginx/includes/lua-init.conf
-COPY prometheus.lua /lua-modules/prometheus.lua
+COPY prometheus.lua /tmpl/prometheus.lua.tmpl
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
@@ -151,6 +152,9 @@ ENV OFFLOAD_TO_HOST=localhost \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
     SERVICE_NAME="myservice" \
-    NAMESPACE="mynamespace"
+    NAMESPACE="mynamespace" \
+    DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.04, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 12.5, 15, 17.5, 20, 25, 30, 40, 50, 60, 90, 120, 150, 180, 300}"
 
-CMD cat /etc/nginx/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE > /etc/nginx/nginx.conf && nginx
+CMD cat /tmpl/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE > /etc/nginx/nginx.conf \
+    && cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua \
+    && nginx
