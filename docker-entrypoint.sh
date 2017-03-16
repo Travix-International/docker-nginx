@@ -9,6 +9,7 @@ sighup_handler() {
 
 # SIGTERM-handler
 sigterm_handler() {
+  # kubernetes sends a sigterm, where nginx needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down nginx..."
   nginx -s quit
 }
@@ -28,4 +29,10 @@ cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/promet
 
 # run nginx
 echo "Starting nginx..."
-nginx
+nginx &
+
+# wait forever
+while true
+do
+  tail -f /dev/null & wait ${!}
+done
