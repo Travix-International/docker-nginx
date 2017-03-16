@@ -28,14 +28,14 @@ echo "Generating prometheus.lua..."
 cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua
 
 # watch for config and ssl certificate updates
-init_inofity() {
+init_inotifywait() {
   echo "Starting inotifywait to detect changes in config and certificates..."
   while inotifywait -e modify /etc/ssl/private /etc/nginx; do
     echo "Files in /etc/ssl/private changed, reloading nginx..."
     nginx -s reload
   done
 }
-init_inofity &
+init_inotifywait &
 
 # run nginx
 echo "Starting nginx..."
