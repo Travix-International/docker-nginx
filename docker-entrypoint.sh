@@ -33,7 +33,7 @@ nginx &
 
 # watch for ssl certificate updates
 echo "Starting inotifywait..."
-while inotifywait -e modify /etc/ssl/private; do
+while inotifywait -e modify /etc/ssl/private /etc/nginx; do
   echo "Files in /etc/ssl/private changed, reloading nginx..."
   nginx -s reload
 done
