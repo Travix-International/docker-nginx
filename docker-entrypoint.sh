@@ -31,8 +31,8 @@ cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/promet
 echo "Starting nginx..."
 nginx &
 
-# watch for ssl certificate updates
-echo "Starting inotifywait..."
+# watch for config and ssl certificate updates
+echo "Starting inotifywait to detect changes in config and certificates..."
 while inotifywait -e modify /etc/ssl/private /etc/nginx; do
   echo "Files in /etc/ssl/private changed, reloading nginx..."
   nginx -s reload
