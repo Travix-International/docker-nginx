@@ -16,8 +16,8 @@ sigterm_handler() {
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'sighup_handler' 1
-trap 'sigterm_handler' 15
+trap 'kill ${!}; sighup_handler' 1
+trap 'kill ${!}; sigterm_handler' 15
 
 # substitute envvars in nginx.conf
 echo "Generating nginx.conf..."
@@ -27,13 +27,22 @@ cat /tmpl/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT
 echo "Generating prometheus.lua..."
 cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua
 
+# watch for config and ssl certificate updates
+init_inofity() {
+  echo "Starting inotifywait to detect changes in config and certificates..."
+  while inotifywait -e modify /etc/ssl/private /etc/nginx; do
+    echo "Files in /etc/ssl/private changed, reloading nginx..."
+    nginx -s reload
+  done
+}
+init_inofity &
+
 # run nginx
 echo "Starting nginx..."
 nginx &
 
-# watch for config and ssl certificate updates
-echo "Starting inotifywait to detect changes in config and certificates..."
-while inotifywait -e modify /etc/ssl/private /etc/nginx; do
-  echo "Files in /etc/ssl/private changed, reloading nginx..."
-  nginx -s reload
+# wait forever
+while true
+do
+  tail -f /dev/null & wait ${!}
 done
