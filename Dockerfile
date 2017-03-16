@@ -149,6 +149,11 @@ COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
 
+# install inotifywait to detect changes to config and certificates
+RUN apk --update upgrade && \
+    apk add --update inotify-tools && \
+    rm -rf /var/cache/apk/*
+
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
