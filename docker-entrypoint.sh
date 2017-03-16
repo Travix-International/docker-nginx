@@ -4,29 +4,21 @@ set -e
 # SIGHUP-handler
 sighup_handler() {
   nginx_pid=$(cat /var/run/nginx.pid)
-  echo "Forwarding SIGHUP to pid $nginx_pid..."
-  kill -SIGUSR1 "$nginx_pid"
-}
-
-# SIGUSR1-handler
-sigusr1_handler() {
-  nginx_pid=$(cat /var/run/nginx.pid)
-  echo "Forwarding SIGUSR1 to pid $nginx_pid..."
-  kill -SIGUSR1 "$nginx_pid"
+  echo "Forwarding HUP signal to pid $nginx_pid..."
+  kill -HUP "$nginx_pid"
 }
 
 # SIGTERM-handler
 sigterm_handler() {
   nginx_pid=$(cat /var/run/nginx.pid)
-  echo "Forwarding SIGTERM to pid $nginx_pid..."
+  echo "Forwarding TERM signal to pid $nginx_pid..."
   kill -SIGTERM "$nginx_pid"
 }
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' SIGHUP
-trap 'kill ${!}; sigusr1_handler' SIGUSR1
-trap 'kill ${!}; sigterm_handler' SIGTERM
+trap 'kill ${!}; sighup_handler' HUP
+trap 'kill ${!}; sigterm_handler' TERM
 
 # substitute envvars in nginx.conf
 echo "Generating nginx.conf..."
