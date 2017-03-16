@@ -3,16 +3,14 @@ set -e
 
 # SIGHUP-handler
 sighup_handler() {
-  nginx_pid=$(cat /var/run/nginx.pid)
-  echo "Forwarding HUP signal to pid $nginx_pid..."
-  kill -HUP "$nginx_pid"
+  echo "Reloading nginx configuration and certificates..."
+  nginx -s reload
 }
 
 # SIGTERM-handler
 sigterm_handler() {
-  nginx_pid=$(cat /var/run/nginx.pid)
-  echo "Forwarding TERM signal to pid $nginx_pid..."
-  kill -SIGTERM "$nginx_pid"
+  echo "Gracefully shutting down nginx..."
+  nginx -s quit
 }
 
 # setup handlers
