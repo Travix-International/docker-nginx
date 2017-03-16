@@ -15,8 +15,8 @@ sigterm_handler() {
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' HUP
-trap 'kill ${!}; sigterm_handler' TERM
+trap 'kill ${!}; sighup_handler' 1
+trap 'kill ${!}; sigterm_handler' 15
 
 # substitute envvars in nginx.conf
 echo "Generating nginx.conf..."
