@@ -27,10 +27,10 @@ cat /tmpl/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT
 echo "Generating prometheus.lua..."
 cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua
 
-# watch for config and ssl certificate updates
+# watch for ssl certificate changes
 init_inotifywait() {
-  echo "Starting inotifywait to detect changes in config and certificates..."
-  while inotifywait -e modify /etc/ssl/private /etc/nginx; do
+  echo "Starting inotifywait to detect changes in certificates..."
+  while inotifywait -e modify,move,create,delete /etc/ssl/private/; do
     echo "Files in /etc/ssl/private changed, reloading nginx..."
     nginx -s reload
   done
