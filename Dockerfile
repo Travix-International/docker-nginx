@@ -2,6 +2,8 @@ FROM alpine:3.4
 
 MAINTAINER Travix
 
+# inspired by https://github.com/nginxinc/docker-nginx/blob/7b33a90d7441909664a920b0687db8d984ac314b/mainline/alpine/Dockerfile and https://github.com/ilagnev/docker-alpine-nginx-lua/blob/master/Dockerfile
+
 ENV NGINX_VERSION 1.11.10
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV LUA_MODULE_VERSION 0.10.6
@@ -145,6 +147,14 @@ EXPOSE 80 81 82 443 9101
 COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY lua-init.conf /etc/nginx/includes/lua-init.conf
 COPY prometheus.lua /tmpl/prometheus.lua.tmpl
+COPY ./docker-entrypoint.sh /
+
+RUN chmod 500 /docker-entrypoint.sh
+
+# install inotifywait to detect changes to config and certificates
+RUN apk --update upgrade && \
+    apk add --update inotify-tools && \
+    rm -rf /var/cache/apk/*
 
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
@@ -155,6 +165,4 @@ ENV OFFLOAD_TO_HOST=localhost \
     NAMESPACE="mynamespace" \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.04, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 8, 9, 10, 12.5, 15, 17.5, 20, 25, 30, 40, 50, 60, 90, 120, 150, 180, 300}"
 
-CMD cat /tmpl/nginx.conf.tmpl | envsubst \$OFFLOAD_TO_HOST,\$OFFLOAD_TO_PORT,\$HEALT_CHECK_PATH,\$ALLOW_CIDRS,\$SERVICE_NAME,\$NAMESPACE > /etc/nginx/nginx.conf \
-    && cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/prometheus.lua \
-    && nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]
