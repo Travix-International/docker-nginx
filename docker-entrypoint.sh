@@ -12,6 +12,7 @@ sigterm_handler() {
   # kubernetes sends a sigterm, where nginx needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down nginx..."
   nginx -s quit
+  echo "Finished shutting down nginx!"
 }
 
 # setup handlers
@@ -46,4 +47,3 @@ while true
 do
   tail -f /dev/null & wait ${!}
 done
-echo "Finished shutting down nginx!"
