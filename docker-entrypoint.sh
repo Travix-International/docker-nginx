@@ -16,8 +16,8 @@ sigterm_handler() {
 
 # setup handlers
 echo "Setting up signal handlers..."
-trap 'kill ${!}; sighup_handler' 1
-trap 'kill ${!}; sigterm_handler' 15
+trap 'kill ${!}; sighup_handler' 1 # SIGHUP
+trap 'kill ${!}; sigterm_handler' 15 # SIGTERM
 
 # substitute envvars in nginx.conf
 echo "Generating nginx.conf..."
@@ -46,3 +46,4 @@ while true
 do
   tail -f /dev/null & wait ${!}
 done
+echo "Finished shutting down nginx!"
