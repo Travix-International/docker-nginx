@@ -2,6 +2,8 @@ FROM alpine:3.4
 
 MAINTAINER Travix
 
+# inspired by https://github.com/nginxinc/docker-nginx/blob/7b33a90d7441909664a920b0687db8d984ac314b/mainline/alpine/Dockerfile and https://github.com/ilagnev/docker-alpine-nginx-lua/blob/master/Dockerfile
+
 ENV NGINX_VERSION 1.11.10
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV LUA_MODULE_VERSION 0.10.6
