@@ -33,7 +33,7 @@ cat /tmpl/prometheus.lua.tmpl | envsubst \$DEFAULT_BUCKETS > /lua-modules/promet
 # watch for ssl certificate changes
 init_inotifywait() {
   echo "Starting inotifywait to detect changes in certificates..."
-  while inotifywait -r -e modify,move,create,delete /etc/ssl/private/; do
+  while inotifywait -e modify,move,create,delete /etc/ssl/private/; do
     echo "Files in /etc/ssl/private changed, reloading nginx..."
     nginx -s reload
   done
