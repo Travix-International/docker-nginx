@@ -163,6 +163,13 @@ ENV OFFLOAD_TO_HOST=localhost \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
     SERVICE_NAME="myservice" \
     NAMESPACE="mynamespace" \
+    CLIENT_BODY_TIMEOUT="60s" \
+    CLIENT_HEADER_TIMEOUT="60s" \
+    KEEPALIVE_TIMEOUT="75s" \
+    SEND_TIMEOUT="60s" \
+    PROXY_CONNECT_TIMEOUT="60s" \
+    PROXY_SEND_TIMEOUT="60s" \
+    PROXY_READ_TIMEOUT="60s" \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 7.5, 10, 15, 20, 30, 60, 120}"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
