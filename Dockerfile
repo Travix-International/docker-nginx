@@ -163,6 +163,7 @@ ENV OFFLOAD_TO_HOST=localhost \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
     SERVICE_NAME="myservice" \
     NAMESPACE="mynamespace" \
+    DNS_ZONE="travix.com" \
     CLIENT_BODY_TIMEOUT="60s" \
     CLIENT_HEADER_TIMEOUT="60s" \
     KEEPALIVE_TIMEOUT="75s" \
