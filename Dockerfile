@@ -6,7 +6,7 @@ MAINTAINER Travix
 
 ENV NGINX_VERSION 1.11.10
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV LUA_MODULE_VERSION 0.10.6
+ENV LUA_MODULE_VERSION 0.10.8
 
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.0
@@ -28,7 +28,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     --http-scgi-temp-path=/var/cache/nginx/scgi_temp \
     --user=nginx \
     --group=nginx \
-    --with-http_ssl_module \
     --with-http_realip_module \
     --with-http_addition_module \
     --with-http_sub_module \
@@ -47,13 +46,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     --with-http_perl_module=dynamic \
     --with-threads \
     --with-stream \
-    --with-stream_ssl_module \
-    --with-stream_ssl_preread_module \
     --with-stream_realip_module \
     --with-stream_geoip_module=dynamic \
     --with-http_slice_module \
     --with-mail \
-    --with-mail_ssl_module \
     --with-compat \
     --with-file-aio \
     --with-http_v2_module \
@@ -66,7 +62,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     gcc \
     libc-dev \
     make \
-    openssl-dev \
     pcre-dev \
     zlib-dev \
     linux-headers \
@@ -142,7 +137,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && ln -sf /dev/stderr /var/log/nginx/error.log \
   && mkdir -p /etc/nginx /lua-modules
 
-EXPOSE 80 81 82 443 9101
+EXPOSE 8080 8081 8082 9101
 
 COPY nginx.conf /tmpl/nginx.conf.tmpl
 COPY lua-init.conf /etc/nginx/includes/lua-init.conf
@@ -160,10 +155,6 @@ RUN apk --update upgrade && \
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     HEALT_CHECK_PATH=/ \
-    ALLOW_CIDRS="allow 0.0.0.0/0;" \
-    SERVICE_NAME="myservice" \
-    NAMESPACE="mynamespace" \
-    DNS_ZONE="travix.com" \
     CLIENT_BODY_TIMEOUT="60s" \
     CLIENT_HEADER_TIMEOUT="60s" \
     KEEPALIVE_TIMEOUT="75s" \
