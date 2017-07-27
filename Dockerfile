@@ -4,9 +4,9 @@ MAINTAINER Travix
 
 # inspired by https://github.com/nginxinc/docker-nginx/blob/7b33a90d7441909664a920b0687db8d984ac314b/mainline/alpine/Dockerfile and https://github.com/ilagnev/docker-alpine-nginx-lua/blob/master/Dockerfile
 
-ENV NGINX_VERSION 1.11.10
+ENV NGINX_VERSION 1.11.13
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV LUA_MODULE_VERSION 0.10.6
+ENV LUA_MODULE_VERSION 0.10.8
 
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.0
