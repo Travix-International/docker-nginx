@@ -2,7 +2,6 @@
 set -e
 
 # inspired by https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86#.k9cjxrx6o
-inotifywait_pid=0
 
 # SIGHUP-handler
 sighup_handler() {
@@ -12,12 +11,14 @@ sighup_handler() {
 
 # SIGTERM-handler
 sigterm_handler() {
+  # first stop inotifywait
+  inotifywait_pid=$(pgrep inotifywait)
+  echo "Received SIGTERM, killing inotifywait with pid $inotifywait_pid..."
+  kill -SIGTERM "$inotifywait_pid"
+  wait "$inotifywait_pid"
+  echo "Killed inotifywait"
+
   # kubernetes sends a sigterm, where nginx needs SIGQUIT for graceful shutdown
-  if [ $inotifywait_pid -ne 0 ]; then
-    echo "Received SIGTERM, killing inotifywait with pid $inotifywait_pid..."
-    kill -9 "$inotifywait_pid"
-    echo "Killed inotifywait"
-  fi
   echo "Gracefully shutting down nginx..."
   nginx -s quit
   echo "Finished shutting down nginx!"
@@ -55,7 +56,6 @@ init_inotifywait() {
   done
 }
 init_inotifywait &
-inotifywait_pid="$!"
 
 # run nginx
 echo "Starting nginx..."
