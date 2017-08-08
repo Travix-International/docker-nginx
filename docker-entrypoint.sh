@@ -11,16 +11,10 @@ sighup_handler() {
 
 # SIGTERM-handler
 sigterm_handler() {
-  # print processes
-  ps
-
   # kubernetes sends a sigterm, where nginx needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down nginx..."
   nginx -s quit
   echo "Finished shutting down nginx!"
-
-  # print processes
-  ps
 
   # stop inotifywait
   inotifywait_pid=$(pgrep inotifywait)
