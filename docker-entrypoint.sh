@@ -11,18 +11,23 @@ sighup_handler() {
 
 # SIGTERM-handler
 sigterm_handler() {
-  # first stop inotifywait
-  inotifywait_pid=$(pgrep inotifywait)
-  echo "Received SIGTERM, killing inotifywait with pid $inotifywait_pid..."
-  kill -SIGTERM "$inotifywait_pid"
-  wait "$inotifywait_pid"
-  echo "Killed inotifywait"
+  # print processes
+  ps
 
   # kubernetes sends a sigterm, where nginx needs SIGQUIT for graceful shutdown
   echo "Gracefully shutting down nginx..."
   nginx -s quit
   echo "Finished shutting down nginx!"
-  exit 143; # 128 + 15 -- SIGTERM
+
+  # print processes
+  ps
+
+  # stop inotifywait
+  inotifywait_pid=$(pgrep inotifywait)
+  echo "Received SIGTERM, killing inotifywait with pid $inotifywait_pid..."
+  kill -SIGTERM "$inotifywait_pid"
+  wait "$inotifywait_pid"
+  echo "Killed inotifywait"
 }
 
 # setup handlers
@@ -61,7 +66,7 @@ init_inotifywait &
 echo "Starting nginx..."
 nginx &
 
-# wait forever
+# wait forever until sigterm_handler stops all background processes
 while true
 do
   tail -f /dev/null & wait ${!}
