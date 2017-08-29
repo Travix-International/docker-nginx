@@ -4,9 +4,9 @@ MAINTAINER Travix
 
 # inspired by https://github.com/nginxinc/docker-nginx/blob/7b33a90d7441909664a920b0687db8d984ac314b/mainline/alpine/Dockerfile and https://github.com/ilagnev/docker-alpine-nginx-lua/blob/master/Dockerfile
 
-ENV NGINX_VERSION 1.11.13
+ENV NGINX_VERSION 1.13.4
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV LUA_MODULE_VERSION 0.10.8
+ENV LUA_MODULE_VERSION 0.10.10
 
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.0
@@ -151,9 +151,9 @@ COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
 
-# install inotifywait to detect changes to config and certificates
+# install apache2-utils for password generation and inotifywait to detect changes to config and certificates
 RUN apk --update upgrade && \
-    apk add --update inotify-tools && \
+    apk add --update apache2-utils inotify-tools && \
     rm -rf /var/cache/apk/*
 
 # runtime environment variables
@@ -161,6 +161,7 @@ ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
+    ACL_USERS="" \
     SERVICE_NAME="myservice" \
     NAMESPACE="mynamespace" \
     DNS_ZONE="travix.com" \
