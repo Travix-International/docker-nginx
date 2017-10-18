@@ -161,6 +161,7 @@ ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
+    TRUST_FORWARDING_RULE_IP="" \
     SERVICE_NAME="myservice" \
     NAMESPACE="mynamespace" \
     DNS_ZONE="travix.com" \
