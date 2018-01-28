@@ -159,6 +159,7 @@ RUN apk --update upgrade && \
 # runtime environment variables
 ENV OFFLOAD_TO_HOST=localhost \
     OFFLOAD_TO_PORT=80 \
+    OFFLOAD_TO_PROTO=http \
     HEALT_CHECK_PATH=/ \
     ALLOW_CIDRS="allow 0.0.0.0/0;" \
     SERVICE_NAME="myservice" \
