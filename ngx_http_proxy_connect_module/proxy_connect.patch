@@ -1,7 +1,8 @@
-diff -r c5f81dcf97a7 src/http/ngx_http_core_module.c
---- a/src/http/ngx_http_core_module.c	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_core_module.c	Thu Mar 10 15:41:41 2016 +0800
-@@ -891,6 +891,13 @@
+diff --git a/src/http/ngx_http_core_module.c b/src/http/ngx_http_core_module.c
+index 5951571..09f3188 100644
+--- a/src/http/ngx_http_core_module.c
++++ b/src/http/ngx_http_core_module.c
+@@ -902,6 +902,13 @@ ngx_http_core_rewrite_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
      ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                     "rewrite phase: %ui", r->phase_handler);
  
@@ -15,7 +16,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_core_module.c
      rc = ph->handler(r);
  
      if (rc == NGX_DECLINED) {
-@@ -922,6 +929,14 @@
+@@ -933,6 +940,14 @@ ngx_http_core_find_config_phase(ngx_http_request_t *r,
      r->content_handler = NULL;
      r->uri_changed = 0;
  
@@ -30,23 +31,11 @@ diff -r c5f81dcf97a7 src/http/ngx_http_core_module.c
      rc = ngx_http_core_find_location(r);
  
      if (rc == NGX_ERROR) {
-diff -r c5f81dcf97a7 src/http/ngx_http_core_module.h
---- a/src/http/ngx_http_core_module.h	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_core_module.h	Thu Mar 10 15:41:41 2016 +0800
-@@ -343,5 +343,9 @@
- #endif
- 
-+#if (NGX_HTTP_PROXY_CONNECT)
-+    unsigned      accept_connect:1;
-+#endif
-+
-     ngx_http_location_tree_node_t   *static_locations;
- #if (NGX_PCRE)
-     ngx_http_core_loc_conf_t       **regex_locations;
-diff -r c5f81dcf97a7 src/http/ngx_http_parse.c
---- a/src/http/ngx_http_parse.c	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_parse.c	Thu Mar 10 15:41:41 2016 +0800
-@@ -107,6 +107,14 @@
+diff --git a/src/http/ngx_http_parse.c b/src/http/ngx_http_parse.c
+index 844054c..1b5adf9 100644
+--- a/src/http/ngx_http_parse.c
++++ b/src/http/ngx_http_parse.c
+@@ -107,6 +107,14 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
      enum {
          sw_start = 0,
          sw_method,
@@ -61,7 +50,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_parse.c
          sw_spaces_before_uri,
          sw_schema,
          sw_schema_slash,
-@@ -246,6 +254,13 @@
+@@ -246,6 +254,13 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
                          r->method = NGX_HTTP_OPTIONS;
                      }
  
@@ -75,7 +64,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_parse.c
                      break;
  
                  case 8:
-@@ -267,6 +282,13 @@
+@@ -267,6 +282,13 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
                  }
  
                  state = sw_spaces_before_uri;
@@ -89,7 +78,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_parse.c
                  break;
              }
  
-@@ -276,6 +298,111 @@
+@@ -276,6 +298,111 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
  
              break;
  
@@ -201,10 +190,11 @@ diff -r c5f81dcf97a7 src/http/ngx_http_parse.c
          /* space* before URI */
          case sw_spaces_before_uri:
  
-diff -r c5f81dcf97a7 src/http/ngx_http_request.c
---- a/src/http/ngx_http_request.c	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_request.c	Thu Mar 10 15:41:41 2016 +0800
-@@ -968,6 +968,53 @@
+diff --git a/src/http/ngx_http_request.c b/src/http/ngx_http_request.c
+index 5668bf4..430a67f 100644
+--- a/src/http/ngx_http_request.c
++++ b/src/http/ngx_http_request.c
+@@ -994,6 +994,53 @@ ngx_http_process_request_line(ngx_event_t *rev)
                  return;
              }
  
@@ -258,7 +248,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_request.c
              if (r->host_start && r->host_end) {
  
                  host.len = r->host_end - r->host_start;
-@@ -1526,6 +1573,19 @@
+@@ -1564,6 +1611,19 @@ ngx_http_alloc_large_header_buffer(ngx_http_request_t *r,
              r->schema_end = new + (r->schema_end - old);
          }
  
@@ -278,31 +268,10 @@ diff -r c5f81dcf97a7 src/http/ngx_http_request.c
          if (r->host_start) {
              r->host_start = new + (r->host_start - old);
              if (r->host_end) {
-@@ -1838,6 +1898,21 @@
- 
-     c = r->connection;
- 
-+#if (NGX_HTTP_PROXY_CONNECT)
-+
-+    ngx_http_core_loc_conf_t    *clcf;
-+
-+    clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-+
-+    if (r->method == NGX_HTTP_CONNECT && !clcf->accept_connect) {
-+        ngx_log_error(NGX_LOG_INFO, c->log, 0,
-+                      "client sent connect method");
-+        ngx_http_finalize_request(r, NGX_HTTP_BAD_REQUEST);
-+        return;
-+    }
-+
-+#endif
-+
- #if (NGX_HTTP_SSL)
- 
-     if (r->http_connection->ssl) {
-diff -r c5f81dcf97a7 src/http/ngx_http_request.h
---- a/src/http/ngx_http_request.h	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_request.h	Thu Mar 10 15:41:41 2016 +0800
+diff --git a/src/http/ngx_http_request.h b/src/http/ngx_http_request.h
+index 421004a..f07d4e7 100644
+--- a/src/http/ngx_http_request.h
++++ b/src/http/ngx_http_request.h
 @@ -42,6 +42,10 @@
  #define NGX_HTTP_PATCH                     0x4000
  #define NGX_HTTP_TRACE                     0x8000
@@ -314,7 +283,7 @@ diff -r c5f81dcf97a7 src/http/ngx_http_request.h
  #define NGX_HTTP_CONNECTION_CLOSE          1
  #define NGX_HTTP_CONNECTION_KEEP_ALIVE     2
  
-@@ -400,6 +404,15 @@
+@@ -408,6 +412,15 @@ struct ngx_http_request_s {
      ngx_str_t                         exten;
      ngx_str_t                         unparsed_uri;
  
@@ -330,10 +299,11 @@ diff -r c5f81dcf97a7 src/http/ngx_http_request.h
      ngx_str_t                         method_name;
      ngx_str_t                         http_protocol;
  
-diff -r c5f81dcf97a7 src/http/ngx_http_variables.c
---- a/src/http/ngx_http_variables.c	Thu Mar 03 21:14:19 2016 +0300
-+++ b/src/http/ngx_http_variables.c	Thu Mar 10 15:41:41 2016 +0800
-@@ -152,6 +152,14 @@
+diff --git a/src/http/ngx_http_variables.c b/src/http/ngx_http_variables.c
+index ab82177..54fe67f 100644
+--- a/src/http/ngx_http_variables.c
++++ b/src/http/ngx_http_variables.c
+@@ -161,6 +161,14 @@ static ngx_int_t ngx_http_variable_time_local(ngx_http_request_t *r,
  
  static ngx_http_variable_t  ngx_http_core_variables[] = {
  

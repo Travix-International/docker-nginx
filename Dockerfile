@@ -6,10 +6,6 @@ MAINTAINER Travix
 
 ENV NGINX_VERSION 1.14.0
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV LUA_MODULE_VERSION 0.10.10
-
-ENV LUAJIT_LIB=/usr/lib
-ENV LUAJIT_INC=/usr/include/luajit-2.1
 
 COPY ngx_http_proxy_connect_module /tmp/ngx_http_proxy_connect_module
 
@@ -60,7 +56,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     --with-file-aio \
     --with-http_v2_module \
     --add-module=/usr/src/ngx_devel_kit-$DEVEL_KIT_MODULE_VERSION \
-    --add-module=/usr/src/lua-nginx-module-$LUA_MODULE_VERSION \
+    --add-module=/tmp/ngx_http_proxy_connect_module \
   " \
   && addgroup -S nginx \
   && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
@@ -78,20 +74,26 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     gd-dev \
     geoip-dev \
     perl-dev \
-    luajit-dev \
   && curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
   && curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
   && curl -fSL https://github.com/simpl/ngx_devel_kit/archive/v$DEVEL_KIT_MODULE_VERSION.tar.gz -o ndk.tar.gz \
-  && curl -fSL https://github.com/openresty/lua-nginx-module/archive/v$LUA_MODULE_VERSION.tar.gz -o lua.tar.gz \
   && export GNUPGHOME="$(mktemp -d)" \
-  && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$GPG_KEYS" \
-  && gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
+  && found=''; \
+  for server in \
+    ha.pool.sks-keyservers.net \
+    hkp://keyserver.ubuntu.com:80 \
+    hkp://p80.pool.sks-keyservers.net:80 \
+    pgp.mit.edu \
+  ; do \
+  echo "Fetching GPG key $GPG_KEYS from $server"; \
+  gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
+  done; \
+  test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
+  gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
   && rm -r "$GNUPGHOME" nginx.tar.gz.asc \
   && mkdir -p /usr/src \
   && tar -zxC /usr/src -f nginx.tar.gz \
   && tar -zxC /usr/src -f ndk.tar.gz \
-  && tar -zxC /usr/src -f lua.tar.gz \
-  && rm nginx.tar.gz ndk.tar.gz lua.tar.gz \
   && cd /usr/src/nginx-$NGINX_VERSION \
   && patch -p1 < /tmp/ngx_http_proxy_connect_module/proxy_connect.patch \
   && cd /usr/src/nginx-$NGINX_VERSION \
@@ -143,14 +145,11 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   \
   # forward request and error logs to docker log collector
   && ln -sf /dev/stdout /var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log \
-  && mkdir -p /etc/nginx /lua-modules
+  && ln -sf /dev/stderr /var/log/nginx/error.log
 
 EXPOSE 80 81 82 443 9101
 
 COPY nginx.conf /tmpl/nginx.conf.tmpl
-COPY lua-init.conf /etc/nginx/includes/lua-init.conf
-COPY prometheus.lua /tmpl/prometheus.lua.tmpl
 COPY ./docker-entrypoint.sh /
 
 RUN chmod 500 /docker-entrypoint.sh
@@ -180,7 +179,6 @@ ENV OFFLOAD_TO_HOST=localhost \
     ENFORCE_HTTPS="true" \
     PROMETHEUS_METRICS_PORT="9101" \
     DEFAULT_BUCKETS="{0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 7.5, 10, 15, 20, 30, 60, 120}" \
-    NGINX_CONF_TMPL_PATH="/tmpl/nginx.conf.tmpl" \
-    PROMETHEUS_LUA_TMPL_PATH="/tmpl/prometheus.lua.tmpl"
+    NGINX_CONF_TMPL_PATH="/tmpl/nginx.conf.tmpl"
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

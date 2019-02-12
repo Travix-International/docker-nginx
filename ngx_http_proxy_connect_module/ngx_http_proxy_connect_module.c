@@ -10,7 +10,7 @@
 
 
 #define NGX_HTTP_PROXY_CONNECT_ESTABLISTHED     \
-    "HTTP/1.0 200 Connection Established\r\n"   \
+    "HTTP/1.1 200 Connection Established\r\n"   \
     "Proxy-agent: nginx\r\n\r\n"
 
 
@@ -80,6 +80,7 @@ typedef struct {
 } ngx_http_proxy_connect_ctx_t;
 
 
+static ngx_int_t ngx_http_proxy_connect_init(ngx_conf_t *cf);
 static ngx_int_t ngx_http_proxy_connect_add_variables(ngx_conf_t *cf);
 static ngx_int_t ngx_http_proxy_connect_connect_addr_variable(
     ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
@@ -170,7 +171,7 @@ static ngx_command_t  ngx_http_proxy_connect_commands[] = {
 
 static ngx_http_module_t  ngx_http_proxy_connect_module_ctx = {
     ngx_http_proxy_connect_add_variables,   /* preconfiguration */
-    NULL,                                   /* postconfiguration */
+    ngx_http_proxy_connect_init,            /* postconfiguration */
 
     NULL,                                   /* create main configuration */
     NULL,                                   /* init main configuration */
@@ -1568,11 +1569,14 @@ ngx_http_proxy_connect_allow(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 static char *
 ngx_http_proxy_connect(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
-    ngx_http_core_loc_conf_t   *clcf;
+    ngx_http_core_loc_conf_t            *clcf;
+    ngx_http_proxy_connect_loc_conf_t   *pclcf;
 
     clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
     clcf->handler = ngx_http_proxy_connect_handler;
-    clcf->accept_connect = 1;
+
+    pclcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_proxy_connect_module);
+    pclcf->accept_connect = 1;
 
     return NGX_CONF_OK;
 }
@@ -1967,6 +1971,42 @@ ngx_http_proxy_connect_add_variables(ngx_conf_t *cf)
         var->get_handler = v->get_handler;
         var->data = v->data;
     }
+
+    return NGX_OK;
+}
+
+
+static ngx_int_t
+ngx_http_proxy_connect_post_read_handler(ngx_http_request_t *r)
+{
+    ngx_http_proxy_connect_loc_conf_t *pclcf;
+
+    pclcf = ngx_http_get_module_loc_conf(r, ngx_http_proxy_connect_module);
+
+    if (r->method == NGX_HTTP_CONNECT && !pclcf->accept_connect) {
+        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
+                      "client sent connect method");
+        return NGX_HTTP_BAD_REQUEST;
+    }
+
+    return NGX_DECLINED;
+}
+
+
+static ngx_int_t
+ngx_http_proxy_connect_init(ngx_conf_t *cf)
+{
+    ngx_http_core_main_conf_t  *cmcf;
+    ngx_http_handler_pt        *h;
+
+    cmcf = ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
+
+    h = ngx_array_push(&cmcf->phases[NGX_HTTP_POST_READ_PHASE].handlers);
+    if (h == NULL) {
+        return NGX_ERROR;
+    }
+
+    *h = ngx_http_proxy_connect_post_read_handler;
 
     return NGX_OK;
 }
