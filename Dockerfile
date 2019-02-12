@@ -4,7 +4,7 @@ MAINTAINER Travix
 
 # inspired by https://github.com/nginxinc/docker-nginx/blob/7b33a90d7441909664a920b0687db8d984ac314b/mainline/alpine/Dockerfile and https://github.com/ilagnev/docker-alpine-nginx-lua/blob/master/Dockerfile
 
-ENV NGINX_VERSION 1.14.0
+ENV NGINX_VERSION 1.10.1
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 
 COPY ngx_http_proxy_connect_module /tmp/ngx_http_proxy_connect_module
@@ -41,18 +41,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     --with-http_auth_request_module \
     --with-http_xslt_module=dynamic \
     --with-http_image_filter_module=dynamic \
-    --with-http_geoip_module=dynamic \
     --with-http_perl_module=dynamic \
     --with-threads \
     --with-stream \
     --with-stream_ssl_module \
-    --with-stream_ssl_preread_module \
-    --with-stream_realip_module \
-    --with-stream_geoip_module=dynamic \
     --with-http_slice_module \
     --with-mail \
     --with-mail_ssl_module \
-    --with-compat \
     --with-file-aio \
     --with-http_v2_module \
     --add-module=/usr/src/ngx_devel_kit-$DEVEL_KIT_MODULE_VERSION \
@@ -72,7 +67,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     gnupg \
     libxslt-dev \
     gd-dev \
-    geoip-dev \
     perl-dev \
   && curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
   && curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
@@ -102,9 +96,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && mv objs/nginx objs/nginx-debug \
   && mv objs/ngx_http_xslt_filter_module.so objs/ngx_http_xslt_filter_module-debug.so \
   && mv objs/ngx_http_image_filter_module.so objs/ngx_http_image_filter_module-debug.so \
-  && mv objs/ngx_http_geoip_module.so objs/ngx_http_geoip_module-debug.so \
   && mv objs/ngx_http_perl_module.so objs/ngx_http_perl_module-debug.so \
-  && mv objs/ngx_stream_geoip_module.so objs/ngx_stream_geoip_module-debug.so \
   && ./configure $CONFIG \
   && make -j$(getconf _NPROCESSORS_ONLN) \
   && make install \
@@ -116,9 +108,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
   && install -m755 objs/nginx-debug /usr/sbin/nginx-debug \
   && install -m755 objs/ngx_http_xslt_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_xslt_filter_module-debug.so \
   && install -m755 objs/ngx_http_image_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_image_filter_module-debug.so \
-  && install -m755 objs/ngx_http_geoip_module-debug.so /usr/lib/nginx/modules/ngx_http_geoip_module-debug.so \
   && install -m755 objs/ngx_http_perl_module-debug.so /usr/lib/nginx/modules/ngx_http_perl_module-debug.so \
-  && install -m755 objs/ngx_stream_geoip_module-debug.so /usr/lib/nginx/modules/ngx_stream_geoip_module-debug.so \
   && ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
   && strip /usr/sbin/nginx* \
   && strip /usr/lib/nginx/modules/*.so \
